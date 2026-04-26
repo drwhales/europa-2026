@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F4EE; --parchment: #EDE8DC; --ink: #1C1A16; --ink-light: #4A4640; --ink-faint: #8A8278;
+    --gold: #B8933A; --gold-light: #D4B068; --pt-green: #1B5E3B; --it-red: #8B1A1A; --border: rgba(28,26,22,0.12);
+    --urgent: #6B1B1B; --urgent-bg: #FDF0EF; --urgent-border: #C97B7B;
+    --soon: #4A3A0A; --soon-bg: #FDF8EC; --soon-border: #D4B068;
+    --ready-bg: #F0F4EE; --ready-border: #7A9B6A;
+    --veg: #2D5A1B; --veg-bg: #EEF5E8; --veg-border: #8BBF6A;
+  }
+  body { font-family: 'Spectral', serif; background: var(--cream); color: var(--ink); font-size: 15px; line-height: 1.7; padding: 0; }
+  .masthead { background: var(--ink); color: var(--cream); padding: 3rem 2.5rem 2.5rem; position: relative; overflow: hidden; }
+  .masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(184,147,58,0.04) 40px, rgba(184,147,58,0.04) 41px); }
+  .masthead-inner { position: relative; z-index: 1; }
+  .eyebrow { font-size: 11px; font-weight: 300; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 0.75rem; }
+  .masthead h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 400; line-height: 1.15; color: var(--cream); margin-bottom: 0.5rem; }
+  .masthead h1 em { font-style: italic; color: var(--gold-light); }
+  .masthead-meta { font-size: 13px; color: rgba(247,244,238,0.55); font-weight: 300; margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  .route-bar { background: var(--parchment); border-bottom: 1px solid var(--border); padding: 1rem 2.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; letter-spacing: 0.05em; }
+  .route-stop { color: var(--ink-light); }
+  .route-stop.pt { color: var(--pt-green); }
+  .route-stop.it { color: var(--it-red); }
+  .route-arrow { color: var(--gold); font-size: 11px; }
+  .content { padding: 2rem 2.5rem; max-width: 900px; }
+  .veg-overview { background: var(--veg-bg); border: 1px solid var(--veg-border); border-radius: 3px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+  .veg-overview h3 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--veg); margin-bottom: 0.75rem; }
+  .veg-dest-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  @media (max-width: 600px) { .veg-dest-grid { grid-template-columns: repeat(2, 1fr); } }
+  .veg-dest { background: white; border: 1px solid var(--veg-border); border-radius: 2px; padding: 8px 10px; }
+  .veg-dest-name { font-size: 11px; font-weight: 400; color: var(--veg); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 3px; }
+  .veg-dest-rating { font-size: 20px; margin-bottom: 2px; }
+  .veg-dest-note { font-size: 11px; color: var(--ink-faint); font-weight: 300; line-height: 1.4; }
+  .veg-phrase { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--veg-border); font-size: 12.5px; color: var(--veg); font-style: italic; }
+  .veg-phrase strong { font-style: normal; font-weight: 400; }
+  .checklist-intro { font-size: 13px; color: var(--ink-faint); font-style: italic; margin-bottom: 1.25rem; font-weight: 300; }
+  .checklist-group { margin-bottom: 1.25rem; }
+  .checklist-group-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 400; margin-bottom: 8px; padding: 4px 10px; border-radius: 2px; display: inline-block; }
+  .label-urgent { background: var(--urgent-bg); color: var(--urgent); border: 1px solid var(--urgent-border); }
+  .label-soon { background: var(--soon-bg); color: var(--soon); border: 1px solid var(--soon-border); }
+  .label-when-ready { background: var(--ready-bg); color: #3A5A2A; border: 1px solid var(--ready-border); }
+  .checklist-items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 600px) { .checklist-items { grid-template-columns: 1fr; } }
+  .checklist-item { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 3px; border: 1px solid; }
+  .checklist-item.urgent { background: var(--urgent-bg); border-color: var(--urgent-border); }
+  .checklist-item.soon { background: var(--soon-bg); border-color: var(--soon-border); }
+  .checklist-item.when-ready { background: var(--ready-bg); border-color: var(--ready-border); }
+  .check-box { width: 16px; height: 16px; border-radius: 2px; border: 1.5px solid; margin-top: 2px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .urgent .check-box { border-color: var(--urgent-border); color: var(--urgent); }
+  .soon .check-box { border-color: var(--soon-border); color: var(--soon); }
+  .when-ready .check-box { border-color: var(--ready-border); color: #3A5A2A; }
+  .check-box.checked { background: currentColor; }
+  .check-box.checked::after { content: '✓'; color: white; font-size: 10px; }
+  .checklist-item-title { font-size: 13px; font-weight: 400; color: var(--ink); margin-bottom: 2px; }
+  .checklist-item-detail { font-size: 12px; color: var(--ink-faint); font-weight: 300; line-height: 1.45; }
+  .checklist-item-link { font-size: 11px; color: var(--pt-green); text-decoration: none; display: inline-block; margin-top: 3px; }
+  .checklist-item-link:hover { text-decoration: underline; }
+  .section-head { display: flex; align-items: center; gap: 1rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .section-flag { font-size: 18px; }
+  .section-head h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; color: var(--ink); }
+  .section-head .nights { margin-left: auto; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); font-weight: 300; }
+  .day-card { display: grid; grid-template-columns: 80px 1fr; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; background: white; }
+  .day-num { background: var(--parchment); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem 0.5rem; border-right: 1px solid var(--border); text-align: center; }
+  .day-num .day-label { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-faint); }
+  .day-num .day-name { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 400; color: var(--ink); line-height: 1.2; margin-top: 1px; }
+  .day-num .day-date { font-size: 11px; color: var(--gold); font-weight: 300; margin-top: 2px; }
+  .day-body { padding: 1rem 1.25rem; }
+  .day-location { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 3px; }
+  .day-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
+  .day-hotel { font-size: 12px; color: var(--ink-faint); font-style: italic; margin-bottom: 6px; padding: 5px 10px; background: var(--parchment); border-radius: 2px; border-left: 2px solid var(--gold); }
+  .day-hotel strong { font-style: normal; color: var(--ink-light); font-weight: 400; }
+  .day-warn { font-size: 12px; color: var(--urgent); margin-bottom: 8px; padding: 5px 10px; background: var(--urgent-bg); border-radius: 2px; border-left: 2px solid var(--urgent-border); font-weight: 300; }
+  .day-veg { font-size: 12px; color: var(--veg); margin-bottom: 8px; padding: 5px 10px; background: var(--veg-bg); border-radius: 2px; border-left: 2px solid var(--veg-border); font-weight: 300; }
+  .day-veg strong { font-weight: 400; }
+  .day-desc { font-size: 13.5px; color: var(--ink-light); line-height: 1.65; margin-bottom: 10px; font-weight: 300; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; font-weight: 400; }
+  .tag-walk { background: #EAF3DE; color: #3B6D11; }
+  .tag-food { background: #FDF3E3; color: #7A4F1A; }
+  .tag-sight { background: #E8EEF7; color: #1B5E3B; }
+  .tag-travel { background: #EDE8F7; color: #4A2D7A; }
+  .tag-rest { background: #F0EFEC; color: #5A5650; }
+  .tag-hotel { background: #F7EAF0; color: #7A1A45; }
+  .tag-veg { background: var(--veg-bg); color: var(--veg); }
+  .hotels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .hotels-grid { grid-template-columns: 1fr; } }
+  .hotel-card { border: 1px solid var(--border); border-radius: 3px; padding: 1rem 1.25rem; background: white; }
+  .hotel-card.splurge { border-left: 3px solid var(--gold); }
+  .hotel-card.points { border-left: 3px solid var(--pt-green); }
+  .hotel-card.cash { border-left: 3px solid var(--ink-faint); }
+  .hotel-program { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 4px; }
+  .hotel-program.p { color: var(--pt-green); }
+  .hotel-program.s { color: var(--gold); }
+  .hotel-program.c { color: var(--ink-faint); }
+  .hotel-name { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+  .hotel-alt { font-size: 12px; color: var(--ink-faint); font-style: italic; margin-bottom: 6px; }
+  .hotel-detail { font-size: 12px; color: var(--ink-light); line-height: 1.55; font-weight: 300; }
+  .hotel-price { font-size: 11px; color: var(--ink-faint); margin-top: 5px; }
+  .strategy-box { background: var(--ink); color: var(--cream); border-radius: 3px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; }
+  .strategy-box h3 { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 400; color: var(--gold-light); margin-bottom: 1rem; font-style: italic; }
+  .strategy-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .strategy-table th { text-align: left; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(247,244,238,0.45); font-weight: 300; padding: 0 0 8px; border-bottom: 1px solid rgba(247,244,238,0.1); }
+  .strategy-table td { padding: 8px 0; border-bottom: 1px solid rgba(247,244,238,0.06); color: rgba(247,244,238,0.8); vertical-align: top; font-weight: 300; }
+  .strategy-table td:first-child { color: var(--cream); font-weight: 400; padding-right: 1rem; white-space: nowrap; }
+  .badge { display: inline-block; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; font-weight: 400; }
+  .badge-hyatt { background: rgba(27,94,59,0.4); color: #7EC8A0; }
+  .badge-amex { background: rgba(184,147,58,0.25); color: var(--gold-light); }
+  .badge-cash { background: rgba(138,130,120,0.3); color: #C8C0B0; }
+  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .tips-grid { grid-template-columns: 1fr; } }
+  .tip-card { border: 1px solid var(--border); border-radius: 3px; padding: 1rem 1.25rem; background: white; }
+  .tip-card h4 { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .tip-card p { font-size: 12.5px; color: var(--ink-light); line-height: 1.6; font-weight: 300; }
+  .flight-box { border: 1px solid var(--border); border-radius: 3px; padding: 1.25rem 1.5rem; background: white; margin-bottom: 10px; display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; }
+  .flight-icon { font-size: 28px; line-height: 1; padding-top: 2px; }
+  .flight-box h4 { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 400; margin-bottom: 4px; color: var(--ink); }
+  .flight-box p { font-size: 13px; color: var(--ink-light); line-height: 1.6; font-weight: 300; }
+  .food-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+  .food-pill { background: var(--parchment); border: 1px solid var(--border); border-radius: 2px; padding: 4px 12px; font-size: 12px; color: var(--ink-light); font-style: italic; font-weight: 300; }
+  .food-pill.veg { background: var(--veg-bg); border-color: var(--veg-border); color: var(--veg); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .footer { background: var(--parchment); border-top: 1px solid var(--border); padding: 1.25rem 2.5rem; font-size: 11.5px; color: var(--ink-faint); font-weight: 300; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow">A grand tour · 14 Sep – 25 Sep 2026</div>
+    <h1>The <em>Ibero-Italian</em> Adventure</h1>
+    <div class="masthead-meta">
+      <span>✦ 11 nights</span>
+      <span>✦ Two travelers</span>
+      <span>✦ Lisbon · Rome · Positano · Taormina</span>
+      <span>✦ Return: Fri 25 Sep 2026</span>
+    </div>
+  </div>
+</div>
+
+<div class="route-bar">
+  <span class="route-stop pt">Lisbon</span><span class="route-arrow">→</span>
+  <span class="route-stop it">Rome</span><span class="route-arrow">→</span>
+  <span class="route-stop it">Positano</span><span class="route-arrow">→</span>
+  <span class="route-stop it">Taormina, Sicily</span><span class="route-arrow">→</span>
+  <span class="route-stop">✈ JFK, New York</span>
+</div>
+
+<div class="content">
+
+  <div class="section-head" style="margin-top:0;">
+    <span class="section-flag">🌿</span>
+    <h2>Vegetarian at a Glance</h2>
+  </div>
+  <div class="veg-overview">
+    <h3>Great news: all four destinations are highly vegetarian-friendly</h3>
+    <div class="veg-dest-grid">
+      <div class="veg-dest"><div class="veg-dest-name">Lisbon</div><div class="veg-dest-rating">🟢🟢🟢🟡</div><div class="veg-dest-note">Good. Seafood-heavy but vegetarian options widely available in the city center.</div></div>
+      <div class="veg-dest"><div class="veg-dest-name">Rome</div><div class="veg-dest-rating">🟢🟢🟢🟢</div><div class="veg-dest-note">Excellent. Cacio e pepe, carciofi, supplì — Roman food is naturally veg-forward.</div></div>
+      <div class="veg-dest"><div class="veg-dest-name">Amalfi Coast</div><div class="veg-dest-rating">🟢🟢🟢🟢</div><div class="veg-dest-note">Excellent. Lemon-forward, vegetable-rich. Sensi in Amalfi town is a standout.</div></div>
+      <div class="veg-dest"><div class="veg-dest-name">Sicily</div><div class="veg-dest-rating">🟢🟢🟢🟢</div><div class="veg-dest-note">Outstanding. Arab-influenced, plant-based cuisine. Timoleone in Taormina is all-veg.</div></div>
+    </div>
+    <div class="veg-phrase">
+      Portugal: <strong>"Sou vegetariana — sem carne e sem peixe, por favor"</strong> · Italy: <strong>"Sono vegetariana — senza carne e senza pesce, per favore"</strong>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <span class="section-flag">📋</span>
+    <h2>Booking Checklist</h2>
+  </div>
+  <p class="checklist-intro">Everything that needs to be reserved — organized by urgency. Tick off as you go.</p>
+
+  <div class="checklist-group">
+    <div class="checklist-group-label label-urgent">Book now — sells out months ahead</div>
+    <div class="checklist-items">
+      <div class="checklist-item urgent">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Splurge hotels — Positano & Taormina</div>
+          <div class="checklist-item-detail">Hotel Buca di Bacco (Positano, Sun 20–Wed 23 Sep, 3 nights) and Mazzarò Sea Palace (Taormina, Wed 23–Fri 25 Sep, 2 nights). Book via AmexTravel.com for FHR benefits.</div>
+          <a class="checklist-item-link" href="https://www.americanexpress.com/en-us/travel/fine-hotels-and-resorts" target="_blank">→ AmexTravel.com FHR portal</a>
+        </div>
+      </div>
+      <div class="checklist-item urgent">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Colosseum & Roman Forum — Sat 19 Sep</div>
+          <div class="checklist-item-detail">Book earliest morning slot for Sat 19 Sep. Official site only — combined ticket includes Forum and Palatine Hill.</div>
+          <a class="checklist-item-link" href="https://www.coopculture.it/en/" target="_blank">→ coopculture.it (official)</a>
+        </div>
+      </div>
+      <div class="checklist-item urgent">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">JFK → Lisbon flight — Mon 14 Sep</div>
+          <div class="checklist-item-detail">TAP Air Portugal flies JFK → LIS nonstop (~7 hrs). Also check Delta and United. Book early — September transatlantic fares are high.</div>
+          <a class="checklist-item-link" href="https://www.google.com/flights" target="_blank">→ Google Flights</a>
+        </div>
+      </div>
+      <div class="checklist-item urgent">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Return flight — Fri 25 Sep, CTA → JFK</div>
+          <div class="checklist-item-detail">Fly Fri 25 Sep from Catania (CTA) via Rome FCO to JFK. Book a late morning departure for a relaxed checkout. Delta, ITA Airways, Lufthansa.</div>
+          <a class="checklist-item-link" href="https://www.google.com/flights" target="_blank">→ Google Flights</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="checklist-group">
+    <div class="checklist-group-label label-soon">Book 2–3 months out</div>
+    <div class="checklist-items">
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Hyatt Regency Lisbon — Mon 14–Thu 17 Sep (3 nights)</div>
+          <div class="checklist-item-detail">Hyatt points. Belém district — ~20 min from city center; use E15 tram or Uber to reach Alfama. Tagus River views, rooftop bar, spa.</div>
+          <a class="checklist-item-link" href="https://www.hyatt.com/hyatt-regency/en-US/lishr-hyatt-regency-lisbon" target="_blank">→ hyatt.com</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Argentina Style Hotel, Rome — Thu 17–Sun 20 Sep (3 nights)</div>
+          <div class="checklist-item-detail">⚠️ Main building only — Via di Torre Argentina 47. Do NOT book the Annex (Via del Sudario). Pay cash, under €300/night. Michelin-listed.</div>
+          <a class="checklist-item-link" href="https://www.argentinastylehotel.com" target="_blank">→ argentinastylehotel.com</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Lisbon → Rome flight — Thu 17 Sep</div>
+          <div class="checklist-item-detail">Direct LIS → FCO, ~3 hrs. TAP Air Portugal most reliable. Book mid-morning to arrive Rome with time to check in.</div>
+          <a class="checklist-item-link" href="https://www.google.com/flights" target="_blank">→ Google Flights</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Pantheon tickets — Fri 18 Sep</div>
+          <div class="checklist-item-detail">Timed-entry (€5). Book first slot for Fri 18 Sep — morning light through the oculus is extraordinary.</div>
+          <a class="checklist-item-link" href="https://pantheonroma.com/en/" target="_blank">→ pantheonroma.com</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Rome → Positano travel — Sun 20 Sep</div>
+          <div class="checklist-item-detail">Frecciarossa Rome → Salerno (~2.5 hrs), then ferry Salerno → Positano (~1 hr). Book train early; confirm Alilauro ferry schedule.</div>
+          <a class="checklist-item-link" href="https://www.trenitalia.com/en.html" target="_blank">→ trenitalia.com</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Pompeii tickets — Mon 21 Sep</div>
+          <div class="checklist-item-detail">Day trip from Positano on Mon 21 Sep. Train to Salerno then Circumvesuviana (~1.5 hrs each way). Book ahead, 3+ hrs on site.</div>
+          <a class="checklist-item-link" href="https://ticketing.pompeiisites.org" target="_blank">→ pompeiisites.org</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Positano → Taormina travel — Wed 23 Sep</div>
+          <div class="checklist-item-detail">Ferry/bus to Salerno, train south through Calabria, Messina Strait, to Taormina-Giardini. Consider private transfer Positano → Salerno for the first leg.</div>
+          <a class="checklist-item-link" href="https://www.trenitalia.com/en.html" target="_blank">→ trenitalia.com</a>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Sensi restaurant, Amalfi — Mon 21 or Tue 22 Sep</div>
+          <div class="checklist-item-detail">Celebrated vegetarian-forward restaurant in Amalfi town. Short ferry from Positano. Book ahead — fills up fast.</div>
+        </div>
+      </div>
+      <div class="checklist-item soon">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Fado show, Lisbon — Tue 15 or Wed 16 Sep</div>
+          <div class="checklist-item-detail">Live Fado dinner in Alfama is unmissable. Try Tasca do Chico or Sr. Vinho for intimate, authentic performances. Book in advance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="checklist-group">
+    <div class="checklist-group-label label-when-ready">Book closer to departure (August–early Sep)</div>
+    <div class="checklist-items">
+      <div class="checklist-item when-ready">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Jerónimos Monastery, Lisbon — Wed 16 Sep</div>
+          <div class="checklist-item-detail">Book timed entry a few weeks ahead. Walkable from the Hyatt Regency in Belém — go early morning before the crowds.</div>
+          <a class="checklist-item-link" href="https://www.patrimoniocultural.gov.pt/en/" target="_blank">→ patrimoniocultural.gov.pt</a>
+        </div>
+      </div>
+      <div class="checklist-item when-ready">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Teatro Antico di Taormina — Thu 24 Sep</div>
+          <div class="checklist-item-detail">Check for performances during your stay (Wed 23–Fri 25 Sep). Worth splurging on if available.</div>
+          <a class="checklist-item-link" href="https://www.parconaxostaormina.com" target="_blank">→ parconaxostaormina.com</a>
+        </div>
+      </div>
+      <div class="checklist-item when-ready">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Timoleone, Taormina — Wed 23 & Thu 24 Sep</div>
+          <div class="checklist-item-detail">All-vegetarian, best restaurant in Taormina. Worth going both nights. Book ahead for dinner.</div>
+        </div>
+      </div>
+      <div class="checklist-item when-ready">
+        <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+        <div>
+          <div class="checklist-item-title">Catania airport transfer — Fri 25 Sep</div>
+          <div class="checklist-item-detail">Train Taormina-Giardini → Catania Centrale (~45 min), taxi to CTA (~10 min). No advance booking needed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- LISBON -->
+  <div class="section-head">
+    <span class="section-flag">🇵🇹</span>
+    <h2>Lisbon, Portugal</h2>
+    <span class="nights">Mon 14 Sep – Thu 17 Sep · 3 nights</span>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 1</span><span class="day-name">Monday</span><span class="day-date">14 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Lisbon — Arrive</div>
+      <div class="day-title">Arrival & first evening</div>
+      <div class="day-hotel">🏨 <strong>Hyatt Regency Lisbon</strong> · Hyatt points · Belém district · Check in: Mon 14 Sep · Check out: Thu 17 Sep · ~20 min from city center via E15 tram or Uber</div>
+      <div class="day-veg">🌿 The hotel's on-site restaurant offers solid vegetarian options — a relaxed first evening after a long transatlantic flight.</div>
+      <div class="day-desc">Land at LIS, check into the Hyatt Regency. Enjoy the Tagus River views and rooftop bar. Easy first evening at the hotel or a short stroll along the Belém waterfront.</div>
+      <div class="tags"><span class="tag tag-walk">Waterfront stroll</span><span class="tag tag-food">Hotel dinner</span><span class="tag tag-rest">Light day</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 2</span><span class="day-name">Tuesday</span><span class="day-date">15 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Lisbon</div>
+      <div class="day-title">Alfama, São Jorge Castle & Fado evening</div>
+      <div class="day-veg">🌿 Alfama restaurants are accommodating — look for açorda, vegetable petiscos, and fresh cheeses. Mention vegetarian when booking the Fado dinner.</div>
+      <div class="day-desc">Tram or Uber into the city center. Morning wander through Alfama — São Jorge Castle for panoramic views, Portas do Sol and Santa Luzia miradouros. Evening: a live Fado dinner in Alfama (pre-booked) — Portugal's soulful music tradition, unmissable.</div>
+      <div class="tags"><span class="tag tag-walk">Hill walking</span><span class="tag tag-sight">São Jorge Castle</span><span class="tag tag-food">Fado dinner</span><span class="tag tag-veg">Veg on request</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 3</span><span class="day-name">Wednesday</span><span class="day-date">16 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Lisbon</div>
+      <div class="day-title">Belém, Jerónimos & LxFactory</div>
+      <div class="day-veg">🌿 Pastéis de Belém (vegetarian) is a 5-minute walk from the hotel. LxFactory has excellent vegetarian-friendly casual restaurants for lunch.</div>
+      <div class="day-desc">Morning walkable from the hotel: Jerónimos Monastery (pre-booked), Belém Tower, pastel de nata at Pastéis de Belém. Afternoon at LxFactory. Uber or tram into Chiado and Bairro Alto for the evening.</div>
+      <div class="tags"><span class="tag tag-sight">Jerónimos Monastery</span><span class="tag tag-walk">Belém & Chiado</span><span class="tag tag-food">Pastéis de nata</span><span class="tag tag-veg">LxFactory lunch</span></div>
+    </div>
+  </div>
+
+  <!-- ROME -->
+  <div class="section-head">
+    <span class="section-flag">🇮🇹</span>
+    <h2>Rome, Italy</h2>
+    <span class="nights">Thu 17 Sep – Sun 20 Sep · 3 nights</span>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 4</span><span class="day-name">Thursday</span><span class="day-date">17 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Lisbon → Rome</div>
+      <div class="day-title">Direct flight · Arrive & Trastevere evening</div>
+      <div class="day-hotel">🏨 <strong>Argentina Style Hotel</strong> · Cash · Via di Torre Argentina 47 (main building only) · Check in: Thu 17 Sep · Check out: Sun 20 Sep</div>
+      <div class="day-warn">⚠️ When booking, confirm your room is in the main building at Via di Torre Argentina 47 — NOT the Annex at Via del Sudario.</div>
+      <div class="day-veg">🌿 Trastevere is excellent for vegetarians. Cacio e pepe and carciofi alla romana are naturally vegetarian Roman classics on almost every menu.</div>
+      <div class="day-desc">Direct TAP flight LIS → FCO (~3 hrs). Check in — your window overlooks the ancient ruins where Julius Caesar was assassinated. Evening in Trastevere — aperitivo, then a classic Roman trattoria dinner.</div>
+      <div class="tags"><span class="tag tag-travel">Direct flight ~3 hrs</span><span class="tag tag-walk">Trastevere stroll</span><span class="tag tag-food">Roman trattoria</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 5</span><span class="day-name">Friday</span><span class="day-date">18 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Rome</div>
+      <div class="day-title">Pantheon, Campo de' Fiori & Vatican area</div>
+      <div class="day-veg">🌿 Campo de' Fiori market is a vegetarian paradise — fresh produce, cheeses, prepared foods. Your hotel is a 5-minute walk — perfect for a picnic lunch.</div>
+      <div class="day-desc">Pantheon first thing (pre-booked!). Coffee at Caffè Sant'Eustachio. Campo de' Fiori market. Afternoon at St. Peter's Square and Castel Sant'Angelo. Dinner in Prati.</div>
+      <div class="tags"><span class="tag tag-sight">Pantheon</span><span class="tag tag-walk">Market stroll</span><span class="tag tag-food">Prati dinner</span><span class="tag tag-veg">Market picnic</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 6</span><span class="day-name">Saturday</span><span class="day-date">19 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Rome</div>
+      <div class="day-title">Ancient city — Colosseum, Forum & Trevi</div>
+      <div class="day-desc">Early morning at the Colosseum & Roman Forum (pre-booked!). Afternoon at Piazza Venezia and Capitoline Hill. Dusk visit to the Trevi Fountain — far fewer crowds in the evening.</div>
+      <div class="tags"><span class="tag tag-sight">Colosseum</span><span class="tag tag-walk">Long walk day</span><span class="tag tag-food">Gelato stops</span></div>
+    </div>
+  </div>
+
+  <!-- AMALFI COAST -->
+  <div class="section-head">
+    <span class="section-flag">🇮🇹</span>
+    <h2>Amalfi Coast — Positano</h2>
+    <span class="nights">Sun 20 Sep – Wed 23 Sep · 3 nights</span>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 7</span><span class="day-name">Sunday</span><span class="day-date">20 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Rome → Positano</div>
+      <div class="day-title">Train to Salerno · Ferry arrival · Settle in</div>
+      <div class="day-hotel">🏨 <strong>Hotel Buca di Bacco, Positano</strong> · Amex FHR · Alt: Grand Hotel Tritone, Praiano · Check in: Sun 20 Sep · Check out: Wed 23 Sep</div>
+      <div class="day-veg">🌿 Amalfi Coast cuisine is naturally veg-forward — pasta al limone, scialatielli ai funghi, grilled aubergine, fresh buffalo mozzarella.</div>
+      <div class="day-desc">Frecciarossa Rome → Salerno (~2.5 hrs), ferry Salerno → Positano (~1 hr) — a stunning coastal arrival. Check in, wander the cascading lanes. Sunset aperitivo on your terrace. Harborfront dinner.</div>
+      <div class="tags"><span class="tag tag-travel">Train + ferry</span><span class="tag tag-walk">Coastal arrival</span><span class="tag tag-hotel">Splurge stay</span><span class="tag tag-food">Terrace dinner</span><span class="tag tag-veg">Veg-forward cuisine</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 8</span><span class="day-name">Monday</span><span class="day-date">21 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Positano</div>
+      <div class="day-title">Day trip — Pompeii</div>
+      <div class="day-veg">🌿 Back in Positano for dinner — try Ristorante La Cambusa, or ferry to Amalfi town for <strong>Sensi</strong>, one of the coast's best vegetarian-forward restaurants.</div>
+      <div class="day-desc">Ferry or bus to Salerno, Circumvesuviana train to Pompeii (~1.5 hrs). Full morning on the ruins (pre-booked, 3+ hrs). Back to Positano by afternoon for a relaxed evening.</div>
+      <div class="tags"><span class="tag tag-sight">Pompeii ruins</span><span class="tag tag-walk">Archaeology walk</span><span class="tag tag-travel">Day trip</span><span class="tag tag-veg">Sensi dinner</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 9</span><span class="day-name">Tuesday</span><span class="day-date">22 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Positano</div>
+      <div class="day-title">Slow day — coast, swimming & village hopping</div>
+      <div class="day-desc">Your free day on the Amalfi Coast. Sleep in, swim from the hotel beach or Spiaggia Grande, ferry along the coast to Amalfi town or Ravello. Long, unhurried dinner back in Positano.</div>
+      <div class="tags"><span class="tag tag-rest">Slow day</span><span class="tag tag-walk">Village hopping</span><span class="tag tag-food">Long dinner</span><span class="tag tag-hotel">Beach & pool</span></div>
+    </div>
+  </div>
+
+  <!-- TAORMINA -->
+  <div class="section-head">
+    <span class="section-flag">🇮🇹</span>
+    <h2>Taormina, Sicily</h2>
+    <span class="nights">Wed 23 Sep – Fri 25 Sep · 2 nights</span>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 10</span><span class="day-name">Wednesday</span><span class="day-date">23 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Positano → Taormina</div>
+      <div class="day-title">Scenic journey across to Sicily</div>
+      <div class="day-hotel">🏨 <strong>Mazzarò Sea Palace</strong> · Amex FHR · Alt: Grand Hotel Timeo (Belmond) · Check in: Wed 23 Sep · Check out: Fri 25 Sep</div>
+      <div class="day-veg">🌿 Head straight to <strong>Timoleone</strong> for dinner — all-vegetarian, consistently rated the best restaurant in Taormina. The Pasta alla Carlo (pistachios, tomatoes, pine nuts, garlic) is legendary.</div>
+      <div class="day-desc">Optional private transfer Positano → Salerno, then train south through Calabria, Messina Strait crossing, to Taormina-Giardini. Afternoon arrival: Corso Umberto stroll, sunset at Piazza IX Aprile with Etna and the Ionian Sea.</div>
+      <div class="tags"><span class="tag tag-travel">Scenic journey</span><span class="tag tag-hotel">Splurge stay</span><span class="tag tag-walk">Corso stroll</span><span class="tag tag-veg">Timoleone dinner</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 11</span><span class="day-name">Thursday</span><span class="day-date">24 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Taormina</div>
+      <div class="day-title">Greek theater, hilltop wander & farewell dinner</div>
+      <div class="day-veg">🌿 Return to Timoleone for your farewell dinner — the Rigatoni alla Norma (tomato, aubergine, ricotta salata) is the essential last-night order.</div>
+      <div class="day-desc">Morning at the Teatro Antico — Greek amphitheater with Mt. Etna as backdrop. Wander the Duomo piazza and hilltop lanes. Afternoon at your hotel pool or beach. Long, unhurried farewell dinner.</div>
+      <div class="tags"><span class="tag tag-sight">Greek theater</span><span class="tag tag-walk">Hilltop wander</span><span class="tag tag-rest">Hotel & pool</span><span class="tag tag-veg">Farewell at Timoleone</span></div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-num"><span class="day-label">Day 12</span><span class="day-name">Friday</span><span class="day-date">25 Sep</span></div>
+    <div class="day-body">
+      <div class="day-location">Taormina → New York</div>
+      <div class="day-title">Depart — Catania (CTA) → hub → JFK</div>
+      <div class="day-desc">Check out, train Taormina-Giardini → Catania Centrale (~45 min), taxi to CTA airport (~10 min). Fly home via Rome FCO. ~11–13 hrs total to JFK. Allow 2.5–3 hrs connection time in Rome.</div>
+      <div class="tags"><span class="tag tag-travel">CTA → FCO → JFK</span><span class="tag tag-rest">Homeward bound</span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-head">
+    <span class="section-flag">🏨</span>
+    <h2>Hotels & Rewards Strategy</h2>
+  </div>
+  <div class="strategy-box">
+    <h3>How to split your points & benefits</h3>
+    <table class="strategy-table">
+      <thead><tr><th>Stop</th><th>Dates</th><th>Nights</th><th>Hotel</th><th>Program</th></tr></thead>
+      <tbody>
+        <tr><td>Lisbon</td><td>Mon 14–Thu 17 Sep</td><td>3</td><td>Hyatt Regency Lisbon · Belém · Tagus views</td><td><span class="badge badge-hyatt">Hyatt Points</span></td></tr>
+        <tr><td>Rome</td><td>Thu 17–Sun 20 Sep</td><td>3</td><td>Argentina Style Hotel · main building only</td><td><span class="badge badge-cash">Cash · under €300/night</span></td></tr>
+        <tr><td>Positano</td><td>Sun 20–Wed 23 Sep</td><td>3</td><td>Hotel Buca di Bacco · Alt: Grand Hotel Tritone</td><td><span class="badge badge-amex">Amex FHR</span></td></tr>
+        <tr><td>Taormina</td><td>Wed 23–Fri 25 Sep</td><td>2</td><td>Mazzarò Sea Palace · Alt: Grand Hotel Timeo</td><td><span class="badge badge-amex">Amex FHR</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="hotels-grid">
+    <div class="hotel-card points">
+      <div class="hotel-program p">World of Hyatt · Lisbon · Mon 14–Thu 17 Sep</div>
+      <div class="hotel-name">Hyatt Regency Lisbon</div>
+      <div class="hotel-alt">Belém district · Tagus River views · ~20 min from city center</div>
+      <div class="hotel-detail">Spacious rooms with river views, rooftop bar, full-service spa, and easy walking access to Jerónimos Monastery. Use E15 tram or Uber to reach Alfama and the historic center.</div>
+      <div class="hotel-price">Verify points category on hyatt.com</div>
+    </div>
+    <div class="hotel-card cash">
+      <div class="hotel-program c">Cash · Rome · Thu 17–Sun 20 Sep</div>
+      <div class="hotel-name">Argentina Style Hotel</div>
+      <div class="hotel-alt">⚠️ Main building only — Via di Torre Argentina 47</div>
+      <div class="hotel-detail">Michelin-listed boutique overlooking the ruins where Caesar was assassinated. High ceilings, parquet floors, attentive staff. Steps from Campo de' Fiori and Pantheon.</div>
+      <div class="hotel-price">Under €300/night · Do not book the Annex</div>
+    </div>
+    <div class="hotel-card splurge">
+      <div class="hotel-program s">Amex FHR · Positano · Sun 20–Wed 23 Sep</div>
+      <div class="hotel-name">Hotel Buca di Bacco</div>
+      <div class="hotel-alt">Alt: Grand Hotel Tritone, Praiano</div>
+      <div class="hotel-detail">3 nights on Positano's main beach. Cliffside views, excellent breakfast, very veg-friendly. FHR: $100 experience credit + breakfast for two per stay.</div>
+      <div class="hotel-price">Verify Sept 2026 rates · FHR benefits ~$550 value</div>
+    </div>
+    <div class="hotel-card splurge">
+      <div class="hotel-program s">Amex FHR · Taormina · Wed 23–Fri 25 Sep</div>
+      <div class="hotel-name">Mazzarò Sea Palace</div>
+      <div class="hotel-alt">Alt: Grand Hotel Timeo (Belmond)</div>
+      <div class="hotel-detail">2 nights beachfront below Taormina hilltop. Funicular access up to town. Use $300 semi-annual FHR credit here for maximum value.</div>
+      <div class="hotel-price">Verify Sept 2026 rates · Use $300 FHR credit</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-head">
+    <span class="section-flag">✈</span>
+    <h2>Flights</h2>
+  </div>
+  <div class="flight-box">
+    <div class="flight-icon">🛫</div>
+    <div>
+      <h4>Mon 14 Sep · JFK → Lisbon (LIS)</h4>
+      <p>TAP Air Portugal flies JFK → LIS nonstop (~7 hrs). Delta and United also serve the route. Book early — September transatlantic fares are high.</p>
+    </div>
+  </div>
+  <div class="flight-box">
+    <div class="flight-icon">✈</div>
+    <div>
+      <h4>Thu 17 Sep · Lisbon (LIS) → Rome (FCO)</h4>
+      <p>Direct, ~3 hrs. TAP Air Portugal most reliable (4–5 flights daily). Book mid-morning to arrive Rome in the afternoon with time to check in and head to Trastevere for dinner.</p>
+    </div>
+  </div>
+  <div class="flight-box">
+    <div class="flight-icon">🛬</div>
+    <div>
+      <h4>Fri 25 Sep · Catania (CTA) → hub → JFK</h4>
+      <p>Train Taormina-Giardini → Catania Centrale (~45 min), taxi to CTA (~10 min). Fly via Rome FCO — Delta, ITA Airways, Lufthansa. Allow 2.5–3 hrs connection in Rome. Book a late morning departure for a relaxed checkout. ~11–13 hrs total to JFK.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-head">
+    <span class="section-flag">✦</span>
+    <h2>Good to Know</h2>
+  </div>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <h4>September timing</h4>
+      <p>Ideal shoulder season — crowds thin after Aug 31, weather warm (22–28°C in Italy, 25°C in Lisbon), and prices dip from summer peaks.</p>
+    </div>
+    <div class="tip-card">
+      <h4>Hyatt Regency Lisbon location</h4>
+      <p>The hotel is in Belém — beautiful riverside setting but ~20 min from the historic center. The E15 tram runs along the waterfront into the city. Uber is fast and cheap for evenings in Alfama or Chiado.</p>
+    </div>
+    <div class="tip-card">
+      <h4>Amex FHR tip</h4>
+      <p>Book Positano and Taormina via AmexTravel.com. Add your hotel loyalty number at booking — you still earn hotel points despite booking through a third party.</p>
+    </div>
+    <div class="tip-card">
+      <h4>Day 10 logistics (Wed 23 Sep)</h4>
+      <p>Positano → Taormina is the most complex travel day. A private transfer Positano → Salerno station simplifies the first leg considerably. Ask the Buca di Bacco concierge to arrange it.</p>
+    </div>
+    <div class="tip-card">
+      <h4>Amalfi Coast transport</h4>
+      <p>From Positano, short ferries run to Amalfi town, Ravello, and Salerno. Much easier and more scenic than the winding cliff roads — use the boats whenever possible.</p>
+    </div>
+    <div class="tip-card">
+      <h4>Trevi Fountain tip</h4>
+      <p>Go at dusk or very early morning — dramatically fewer crowds. A €2 ticket gives access to the lower platform for an up-close view worth every cent.</p>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <span class="section-flag">🍽</span>
+    <h2>Food to Chase</h2>
+  </div>
+  <div class="food-row">
+    <span class="food-pill veg">Lisbon: pastel de nata 🌿</span>
+    <span class="food-pill veg">Lisbon: açorda 🌿</span>
+    <span class="food-pill">Lisbon: petiscos</span>
+    <span class="food-pill">Lisbon: bacalhau</span>
+    <span class="food-pill veg">Rome: cacio e pepe 🌿</span>
+    <span class="food-pill veg">Rome: supplì al pomodoro 🌿</span>
+    <span class="food-pill veg">Rome: carciofi alla romana 🌿</span>
+    <span class="food-pill veg">Positano: pasta al limone 🌿</span>
+    <span class="food-pill veg">Positano: scialatielli ai funghi 🌿</span>
+    <span class="food-pill">Amalfi: limoncello</span>
+    <span class="food-pill veg">Sicily: pasta alla Norma 🌿</span>
+    <span class="food-pill veg">Sicily: caponata 🌿</span>
+    <span class="food-pill veg">Sicily: arancini al burro 🌿</span>
+    <span class="food-pill veg">Sicily: granita & brioche 🌿</span>
+    <span class="food-pill veg">Sicily: cannoli 🌿</span>
+    <span class="food-pill veg">Taormina: Pasta alla Carlo at Timoleone 🌿</span>
+  </div>
+
+</div>
+
+<div class="footer">
+  Itinerary prepared with Claude · 14 Sep – 25 Sep 2026 · 11 nights · 🌿 denotes vegetarian-friendly dishes · Hotel prices are estimates — verify current rates before booking · Points redemption rates subject to change
+</div>
+
+<script>
+  document.querySelectorAll('.check-box').forEach(box => {
+    box.addEventListener('click', () => box.classList.toggle('checked'));
+  });
+</script>
+</body>
+</html>
