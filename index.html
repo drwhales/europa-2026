@@ -121,6 +121,10 @@
   .food-pill.veg { background: var(--veg-bg); border-color: var(--veg-border); color: var(--veg); }
   .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
   .footer { background: var(--parchment); border-top: 1px solid var(--border); padding: 1.25rem 2.5rem; font-size: 11.5px; color: var(--ink-faint); font-weight: 300; font-style: italic; }
+  .sync-status { font-size: 11px; color: var(--ink-faint); font-style: italic; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; transition: background 0.3s; }
+  .sync-dot.connected { background: #7EC8A0; }
+  .sync-dot.error { background: #C97B7B; }
 </style>
 </head>
 <body>
@@ -169,13 +173,17 @@
     <span class="section-flag">📋</span>
     <h2>Booking Checklist</h2>
   </div>
-  <p class="checklist-intro">Everything that needs to be reserved — organized by urgency. Tick off as you go.</p>
+  <div class="sync-status">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncLabel">Connecting…</span>
+  </div>
+  <p class="checklist-intro">Checkboxes sync in real time between both of you. Tick off as you go.</p>
 
   <div class="checklist-group">
     <div class="checklist-group-label label-urgent">Book now — sells out months ahead</div>
     <div class="checklist-items">
       <div class="checklist-item urgent">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_3f8a"></div>
         <div>
           <div class="checklist-item-title">Splurge hotels — Positano &amp; Taormina</div>
           <div class="checklist-item-detail">Hotel L'Ancora (Positano, Sun 20–Wed 23 Sep, 3 nights) and Mazzarò Sea Palace (Taormina, Wed 23–Fri 25 Sep, 2 nights). Book Taormina via AmexTravel.com for FHR benefits.</div>
@@ -183,7 +191,7 @@
         </div>
       </div>
       <div class="checklist-item urgent">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_7c2d"></div>
         <div>
           <div class="checklist-item-title">Colosseum &amp; Roman Forum — Sat 19 Sep</div>
           <div class="checklist-item-detail">Book earliest morning slot for Sat 19 Sep. Official site only — combined ticket includes Forum and Palatine Hill.</div>
@@ -191,7 +199,7 @@
         </div>
       </div>
       <div class="checklist-item urgent">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_1b5e"></div>
         <div>
           <div class="checklist-item-title">JFK → Lisbon flight — Mon 14 Sep</div>
           <div class="checklist-item-detail">TAP Air Portugal or Delta fly JFK → LIS nonstop (~7 hrs). Book early — September transatlantic fares are high.</div>
@@ -199,7 +207,7 @@
         </div>
       </div>
       <div class="checklist-item urgent">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_9e4f"></div>
         <div>
           <div class="checklist-item-title">Return flight — Fri 25 Sep, CTA → JFK</div>
           <div class="checklist-item-detail">Fly Fri 25 Sep from Catania (CTA) via Rome FCO to JFK. Book a late morning departure for a relaxed checkout. Delta, ITA Airways, Lufthansa.</div>
@@ -213,7 +221,7 @@
     <div class="checklist-group-label label-soon">Book 2–3 months out</div>
     <div class="checklist-items">
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_2a7b"></div>
         <div>
           <div class="checklist-item-title">Hyatt Regency Lisbon — Mon 14–Thu 17 Sep (3 nights)</div>
           <div class="checklist-item-detail">Hyatt points. Belém district — ~20 min from city center; use E15 tram or Uber to reach Alfama. Tagus River views, rooftop bar, spa.</div>
@@ -221,7 +229,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_6d3c"></div>
         <div>
           <div class="checklist-item-title">Airbnb, Rome — Thu 17–Sun 20 Sep (3 nights)</div>
           <div class="checklist-item-detail">Centro Storico neighborhood. Aim for something near Campo de' Fiori, Pantheon, or Trastevere for the best walking access to your sightseeing days.</div>
@@ -229,7 +237,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_4f1a"></div>
         <div>
           <div class="checklist-item-title">Lisbon → Rome flight — Thu 17 Sep</div>
           <div class="checklist-item-detail">Direct LIS → FCO, ~3 hrs. TAP Air Portugal most reliable. Book mid-morning to arrive Rome with time to check in.</div>
@@ -237,7 +245,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_8b2e"></div>
         <div>
           <div class="checklist-item-title">Pantheon tickets — Fri 18 Sep</div>
           <div class="checklist-item-detail">Timed-entry (€5). Book first slot for Fri 18 Sep — morning light through the oculus is extraordinary.</div>
@@ -245,7 +253,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_5c9d"></div>
         <div>
           <div class="checklist-item-title">Rome → Positano travel — Sun 20 Sep</div>
           <div class="checklist-item-detail">Frecciarossa Rome → Salerno (~2.5 hrs), then ferry Salerno → Positano (~1 hr). Book train early; confirm Alilauro ferry schedule.</div>
@@ -253,7 +261,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_0e6f"></div>
         <div>
           <div class="checklist-item-title">Pompeii tickets — Mon 21 Sep</div>
           <div class="checklist-item-detail">Day trip from Positano on Mon 21 Sep. Train to Salerno then Circumvesuviana (~1.5 hrs each way). Book ahead, 3+ hrs on site.</div>
@@ -261,7 +269,7 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_7a4c"></div>
         <div>
           <div class="checklist-item-title">Positano → Taormina travel — Wed 23 Sep</div>
           <div class="checklist-item-detail">Private transfer Positano → Salerno, then direct Intercity train to Taormina-Giardini (~6 hrs). The train crosses the Messina Strait on a ferry — no transfer needed, stay in your seat.</div>
@@ -269,14 +277,14 @@
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_3b8d"></div>
         <div>
           <div class="checklist-item-title">Sensi restaurant, Amalfi — Mon 21 or Tue 22 Sep</div>
           <div class="checklist-item-detail">Celebrated vegetarian-forward restaurant in Amalfi town. Short ferry from Positano. Book ahead — fills up fast.</div>
         </div>
       </div>
       <div class="checklist-item soon">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_1d5b"></div>
         <div>
           <div class="checklist-item-title">Fado show, Lisbon — Tue 15 or Wed 16 Sep</div>
           <div class="checklist-item-detail">Live Fado dinner in Alfama is unmissable. Try Tasca do Chico or Sr. Vinho for intimate, authentic performances. Book in advance.</div>
@@ -289,7 +297,7 @@
     <div class="checklist-group-label label-when-ready">Book closer to departure (August–early Sep)</div>
     <div class="checklist-items">
       <div class="checklist-item when-ready">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_9f2a"></div>
         <div>
           <div class="checklist-item-title">Jerónimos Monastery, Lisbon — Wed 16 Sep</div>
           <div class="checklist-item-detail">Book timed entry a few weeks ahead. Walkable from the Hyatt Regency in Belém — go early morning before the crowds.</div>
@@ -297,7 +305,7 @@
         </div>
       </div>
       <div class="checklist-item when-ready">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_6e1c"></div>
         <div>
           <div class="checklist-item-title">Teatro Antico di Taormina — Thu 24 Sep</div>
           <div class="checklist-item-detail">Check for performances during your stay (Wed 23–Fri 25 Sep). Worth splurging on if available.</div>
@@ -305,14 +313,14 @@
         </div>
       </div>
       <div class="checklist-item when-ready">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_4c7e"></div>
         <div>
           <div class="checklist-item-title">Timoleone, Taormina — Wed 23 &amp; Thu 24 Sep</div>
           <div class="checklist-item-detail">All-vegetarian, best restaurant in Taormina. Worth going both nights. Book ahead for dinner.</div>
         </div>
       </div>
       <div class="checklist-item when-ready">
-        <div class="check-box"></div>
+        <div class="check-box" data-key="cb_2d9f"></div>
         <div>
           <div class="checklist-item-title">Catania airport transfer — Fri 25 Sep</div>
           <div class="checklist-item-detail">Train Taormina-Giardini → Catania Centrale (~45 min), taxi to CTA (~10 min). No advance booking needed.</div>
@@ -615,12 +623,43 @@
   Itinerary prepared with Claude · 14 Sep – 25 Sep 2026 · 11 nights · 🌿 denotes vegetarian-friendly dishes · Hotel prices are estimates — verify current rates before booking · Points redemption rates subject to change
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.check-box').forEach(function(box) {
-      box.addEventListener('click', function() {
-        this.classList.toggle('checked');
-      });
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  const app = initializeApp({
+    databaseURL: 'https://europa-2026-ae6df-default-rtdb.firebaseio.com/'
+  });
+
+  const db = getDatabase(app);
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+
+  // Load all checkbox states from Firebase and listen for real-time updates
+  const checklistRef = ref(db, 'x7k2');
+  onValue(checklistRef, (snapshot) => {
+    dot.className = 'sync-dot connected';
+    label.textContent = 'Synced';
+    const data = snapshot.val() || {};
+    document.querySelectorAll('.check-box[data-key]').forEach(box => {
+      const key = box.getAttribute('data-key');
+      if (data[key]) {
+        box.classList.add('checked');
+      } else {
+        box.classList.remove('checked');
+      }
+    });
+  }, (error) => {
+    dot.className = 'sync-dot error';
+    label.textContent = 'Offline — changes won\'t sync';
+  });
+
+  // Handle clicks — toggle in Firebase
+  document.querySelectorAll('.check-box[data-key]').forEach(box => {
+    box.addEventListener('click', function() {
+      const key = this.getAttribute('data-key');
+      const isChecked = this.classList.contains('checked');
+      set(ref(db, 'x7k2/' + key), !isChecked);
     });
   });
 </script>
